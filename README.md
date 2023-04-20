@@ -12,9 +12,9 @@ TODO description, references
 
 1. Clone repository and enter project directory.
 ```bash
-git clone https://github.com/bartek-bartlomiej/master-thesis.git
+git clone https://github.com/kzajac/shor_mmik.git
 
-cd master-thesis
+cd shor_mmik
 ```
 
 2. Create and activate virtual environment.
