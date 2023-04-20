@@ -13,7 +13,7 @@ import logging
 import math
 from fractions import Fraction
 
-from qiskit.providers import BaseBackend, Backend
+from qiskit.providers import  Backend
 from qiskit.utils import QuantumInstance
 from qiskit.utils.validation import validate_min
 
@@ -25,7 +25,7 @@ class Shor(ABC):
 
     def __init__(self,
                  quantum_instance: Optional[
-                     Union[QuantumInstance, BaseBackend, Backend]] = None) -> None:
+                     Union[QuantumInstance,  Backend]] = None) -> None:
         """
         Args:
             quantum_instance: Quantum Instance or Backend
@@ -42,9 +42,9 @@ class Shor(ABC):
 
     @quantum_instance.setter
     def quantum_instance(self, quantum_instance: Union[QuantumInstance,
-                                                       BaseBackend, Backend]) -> None:
+                                                        Backend]) -> None:
         """ Sets quantum instance. """
-        if isinstance(quantum_instance, (BaseBackend, Backend)):
+        if isinstance(quantum_instance, ( Backend)):
             quantum_instance = QuantumInstance(quantum_instance)
         self._quantum_instance = quantum_instance
 
