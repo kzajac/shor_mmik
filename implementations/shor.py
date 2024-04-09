@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 from itertools import chain
 
 from qiskit import QuantumRegister, AncillaRegister, QuantumCircuit, ClassicalRegister
-from qiskit.algorithms import AlgorithmResult
+
 from qiskit.circuit import Instruction
 from qiskit.circuit.library import QFT
 
@@ -14,8 +14,11 @@ import math
 from fractions import Fraction
 
 from qiskit.providers import  Backend
-from qiskit.utils import QuantumInstance
-from qiskit.utils.validation import validate_min
+from qiskit_aer import AerSimulator
+from qiskit_ibm_runtime import QiskitRuntimeService
+from qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager
+
+#from qiskit.utils.validation import validate_min
 
 
 logger = logging.getLogger(__name__)
@@ -23,30 +26,11 @@ logger = logging.getLogger(__name__)
 
 class Shor(ABC):
 
-    def __init__(self,
-                 quantum_instance: Optional[
-                     Union[QuantumInstance,  Backend]] = None) -> None:
-        """
-        Args:
-            quantum_instance: Quantum Instance or Backend
-
-        """
-        self._quantum_instance = None
-        if quantum_instance:
-            self.quantum_instance = quantum_instance
-
-    @property
-    def quantum_instance(self) -> Optional[QuantumInstance]:
-        """ Returns quantum instance. """
-        return self._quantum_instance
-
-    @quantum_instance.setter
-    def quantum_instance(self, quantum_instance: Union[QuantumInstance,
-                                                        Backend]) -> None:
-        """ Sets quantum instance. """
-        if isinstance(quantum_instance, ( Backend)):
-            quantum_instance = QuantumInstance(quantum_instance)
-        self._quantum_instance = quantum_instance
+    def __init__(self,  shots) -> None:
+        self.shots= shots
+     
+       
+   
 
     def factor(self, a: int, N: int, semi_classical: bool) -> Optional[Tuple[int, int]]:
         shor_result = self.get_order(a, N, semi_classical)
@@ -65,10 +49,18 @@ class Shor(ABC):
         result = ShorResult()
 
         circuit = self.construct_circuit(a, N, semi_classical, measurement=True)
-        counts = self.quantum_instance.execute(circuit).get_counts(circuit)
+        aersim = AerSimulator()
+        pm = generate_preset_pass_manager(backend=aersim, optimization_level=3)
+        isa_qc = pm.run(circuit)
+  
+        counts = aersim.run(isa_qc,shots=self.shots).result().get_counts(0)
+      #  counts = result.get_counts(0)
+        print('Counts(ideal):', counts)
+     
+        #counts=self.sampler().run(circuit, shots=self.shots).result().quasi_dists[0].binary_probabilities()
 
         result.total_counts = len(counts)
-        result.total_shots = self.quantum_instance.run_config.shots
+        result.total_shots =  self.shots
 
         for measurement, shots in counts.items():
             measurement = self._parse_measurement(measurement, semi_classical)
@@ -102,8 +94,8 @@ class Shor(ABC):
 
     @staticmethod
     def _validate_input(a: int, N: int):
-        validate_min('N', N, 3)
-        validate_min('a', a, 2)
+       # validate_min('N', N, 3)
+        #validate_min('a', a, 2)
 
         if N < 1 or N % 2 == 0:
             raise ValueError(f'The input N needs to be an odd integer greater than 1. Provided N = {N}.')
@@ -227,6 +219,7 @@ class Shor(ABC):
 
         return circuit
 
+
     @abstractmethod
     def _get_aux_register_size(self, n: int) -> int:
         raise NotImplemented
@@ -248,10 +241,9 @@ class Shor(ABC):
         raise NotImplemented
 
 
-class ShorResult(AlgorithmResult):
+class ShorResult():
 
     def __init__(self) -> None:
-        super().__init__()
         self._order = None
         self._total_counts = 0
         self._successful_counts = 0
