@@ -55,7 +55,7 @@ class Shor(ABC):
   
         counts = aersim.run(isa_qc,shots=self.shots).result().get_counts(0)
       #  counts = result.get_counts(0)
-        print('Counts(ideal):', counts)
+       # print('Counts(ideal):', counts)
      
         #counts=self.sampler().run(circuit, shots=self.shots).result().quasi_dists[0].binary_probabilities()
 
