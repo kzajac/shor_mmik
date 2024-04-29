@@ -1,4 +1,4 @@
-qiskit==0.25.3
+qiskit==1.0.1
 numpy==1.20.1
 scipy==1.6.1
 sympy==1.7.1
