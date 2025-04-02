@@ -1,5 +1,5 @@
 
-## Tested with
+Tested with the same software as for lab3
 
 * qiskit version 1.4.0
 * qiskit_aer version 0.16.1
